@@ -1,0 +1,63 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+.env.*
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Byte-compiled Python modules
+*.pyc
+*.pyo
+
+# Logs
+*.log
+logs/
+*.out
+*.err
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+
+# Test results
+coverage/
+*.coverage
+.cache/
+
+# Migrations
+migrations/
+
+# Static files
+staticfiles/
+mediafiles/
+
+# Database files
+*.sqlite3
+db.sqlite3
+
+# Docker-related files
+*.pid
+*.log
+docker-compose.override.yml
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Node.js files (if using for frontend)
+node_modules/
+npm-debug.log*
+
+# Azure deployment (if using)
+*.publishsettings
