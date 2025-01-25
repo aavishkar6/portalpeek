@@ -5,6 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import json
 import re
 from bs4 import BeautifulSoup
+import datetime
 
 def setup_driver(production : bool = False) -> webdriver.Chrome:
     # Set up ChromeOptions for headless mode and other arguments
@@ -36,7 +37,7 @@ def setup_driver(production : bool = False) -> webdriver.Chrome:
 def remove_whitespace(text):
     return re.sub(r'\s+', ' ', text).strip()
 
-def scrape_student_portal(driver, count_max = 5):
+def scrape_student_portal(driver, count_max, save_to_file):
     html_content = driver.page_source
 
     # Parse the HTML content
@@ -47,11 +48,12 @@ def scrape_student_portal(driver, count_max = 5):
 
     # Initialize the result dictionary
     result = {}
+    announcements = []
 
     count = 1
 
     for section in announce_container.find_all('section'):
-        announcements = []
+        # announcements = []
         date = section['data-date']
         ul = section.find('ul')
 
@@ -94,17 +96,20 @@ def scrape_student_portal(driver, count_max = 5):
         except Exception as e:
             print("Error occured ", e )
     
-        result[date] = announcements
+        # result[date] = announcements
 
         if count >= count_max:
             break
         count += 1
 
     # Convert the list to JSON format
-    json_data = json.dumps(result, indent=4)
+    # json_data = json.dumps(result, indent=4)
+    json_data = json.dumps(announcements, indent=4)
+
 
     # Optionally, write the JSON data to a file
-    with open('announcements.json', 'w') as f:
-        f.write(json_data)
+    if save_to_file:
+        with open('announcements.json', 'w') as f:
+            f.write(json_data)
 
-    return json_data
+    return announcements

@@ -3,59 +3,67 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-import sys
-
 # Other imports
 import time
-import os
 
 from ..config import Config
 from .utils import setup_driver, scrape_student_portal
 
-# Setup the driver module. Production runs in headless mode
-driver = setup_driver(production = False)
+def scrape_portal(production: bool = False, save_to_file: bool = True, count_max: int = 50):
+  try:
+    # Setup the driver module. Production runs in headless mode
+    driver = setup_driver(production = production)
 
-print("opening the URL")
-# Go to the site
-driver.get(Config.PORTAL_WEBSITE)
+    print("opening the URL")
 
-# Add username and password to the site
-username_input = driver.find_element(By.ID, 'username')
-username_input.send_keys(Config.NYU_USERNAME)
+    # Go to the site
+    driver.get(Config.PORTAL_WEBSITE)
 
-password_input = driver.find_element(By.ID, 'password')
-password_input.send_keys(Config.NYU_PASSWORD)
+    # Add username and password to the site
+    username_input = driver.find_element(By.ID, 'username')
+    username_input.send_keys(Config.NYU_USERNAME)
 
-# Locate the button by name or other attributes as needed and click it
-button = driver.find_element(By.NAME, "_eventId_proceed")
-button.click()
+    password_input = driver.find_element(By.ID, 'password')
+    password_input.send_keys(Config.NYU_PASSWORD)
 
-print("Logging in")
+    # Locate the button by name or other attributes as needed and click it
+    button = driver.find_element(By.NAME, "_eventId_proceed")
+    button.click()
 
-time.sleep(20)
+    print("Logging in")
 
-trust_button = driver.find_element(By.ID, "trust-browser-button")
-trust_button.click()
-print("Clicked duo trust the device button")
+    time.sleep(20)
 
-print("Scraping the website now")
+    trust_button = driver.find_element(By.ID, "trust-browser-button")
+    trust_button.click()
+    print("Clicked duo trust the device button")
 
-wait = WebDriverWait(driver, 30)
-wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+    print("Scraping the website now")
 
-element = wait.until(EC.presence_of_element_located((By.ID, "announceContainer")))
+    wait = WebDriverWait(driver, 30)
+    wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
 
-load_more_button = element.find_element(By.CLASS_NAME, "load-more-btn")
+    element = wait.until(EC.presence_of_element_located((By.ID, "announceContainer")))
 
-load_more_button.click()
+    load_more_button = element.find_element(By.CLASS_NAME, "load-more-btn")
 
-time.sleep(5)
-# Click on load more button 
-# scrape the information
-information = scrape_student_portal(driver, count_max=100)
+    # Click on load more button 
+    load_more_button.click()
 
-# print(information)
+    time.sleep(5)
+    # scrape the information
+    information = scrape_student_portal(driver, count_max=count_max, save_to_file=save_to_file)
 
-print("scraping completed")
+    # print(information)
 
-driver.quit()
+    print("scraping completed")
+
+    driver.quit()
+
+    return information
+
+  except Exception as e:
+
+    driver.quit()
+    print("Exception occured: {e}")
+    return ValueError
