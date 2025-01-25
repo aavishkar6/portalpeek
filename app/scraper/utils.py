@@ -5,7 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import json
 import re
 from bs4 import BeautifulSoup
-import datetime
+from datetime import datetime
 
 def setup_driver(production : bool = False) -> webdriver.Chrome:
     # Set up ChromeOptions for headless mode and other arguments
@@ -34,10 +34,12 @@ def setup_driver(production : bool = False) -> webdriver.Chrome:
 
     return driver
 
-def remove_whitespace(text):
+def remove_whitespace(text: str) -> str:
     return re.sub(r'\s+', ' ', text).strip()
 
-def scrape_student_portal(driver, count_max, save_to_file):
+def scrape_student_portal(driver : webdriver.Chrome, num_of_days: int, save_to_file : bool) -> list:
+    """ count_max limits the number of days to scrape."""
+
     html_content = driver.page_source
 
     # Parse the HTML content
@@ -46,19 +48,14 @@ def scrape_student_portal(driver, count_max, save_to_file):
     # Find the container that holds the announcements
     announce_container = soup.find(id="announceContainer")
 
-    # Initialize the result dictionary
-    result = {}
     announcements = []
 
     count = 1
-
     for section in announce_container.find_all('section'):
-        # announcements = []
         date = section['data-date']
         ul = section.find('ul')
 
         try:
-
             for li in ul.find_all('li', class_='announcement'):
                 # Extract the title
                 title_tag = li.find('a')
@@ -67,6 +64,7 @@ def scrape_student_portal(driver, count_max, save_to_file):
                 # Extract the description
                 description_tag = li.find('div', class_='details')
                 description = description_tag.get_text(strip=True) if description_tag else ""
+
                 # Remove the last few words from the description.
                 desc = description.split("Category")[0].strip()
 
@@ -81,7 +79,6 @@ def scrape_student_portal(driver, count_max, save_to_file):
                 category_tag = li.find('li', class_='category')
                 category = category_tag.get_text(strip=True).replace('Category:', '') if category_tag else ""
 
-                # Construct the JSON object for the announcement
                 announcement = {
                     "title": remove_whitespace(title),
                     "category": remove_whitespace(category),
@@ -96,20 +93,18 @@ def scrape_student_portal(driver, count_max, save_to_file):
         except Exception as e:
             print("Error occured ", e )
     
-        # result[date] = announcements
-
-        if count >= count_max:
+        if count >= num_of_days:
             break
         count += 1
 
-    # Convert the list to JSON format
-    # json_data = json.dumps(result, indent=4)
-    json_data = json.dumps(announcements, indent=4)
-
-
-    # Optionally, write the JSON data to a file
+    # Write to file if True
     if save_to_file:
-        with open('announcements.json', 'w') as f:
+        json_data = json.dumps(announcements, indent=4)
+
+        # Define unique filename based on current time of scraping.
+        file_name = f"announcements_{str(datetime.now())}.json"
+
+        with open(file_name, 'w') as f:
             f.write(json_data)
 
     return announcements

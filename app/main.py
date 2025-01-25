@@ -9,18 +9,14 @@ import json
 
 def scrape_job():
 
-  # process_data returns a list of announcements.
-  announcements = scrape_portal(production=True, save_to_file=True, count_max=1)
+  # Scrape the portal.
+  announcements = scrape_portal(production = True, save_to_file = True, num_of_days = 1)
 
   # categorize data using a llm.
   categorized_data = categorize_using_llm(announcements)
 
   # save data into database.
   save_announcements_to_database(categorized_data)
-
-  # print(announcements[0])
-
-  # save_announcements_to_database(announcements)
 
 
 # Scrape the portal

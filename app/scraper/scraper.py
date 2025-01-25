@@ -9,7 +9,7 @@ import time
 from ..config import Config
 from .utils import setup_driver, scrape_student_portal
 
-def scrape_portal(production: bool = False, save_to_file: bool = True, count_max: int = 50):
+def scrape_portal(production: bool = False, save_to_file: bool = True, num_of_days: int = 50) -> list:
   try:
     # Setup the driver module. Production runs in headless mode
     driver = setup_driver(production = production)
@@ -32,6 +32,7 @@ def scrape_portal(production: bool = False, save_to_file: bool = True, count_max
 
     print("Logging in")
 
+    # Give time to approve the 2FA button.
     time.sleep(20)
 
     trust_button = driver.find_element(By.ID, "trust-browser-button")
@@ -52,7 +53,7 @@ def scrape_portal(production: bool = False, save_to_file: bool = True, count_max
 
     time.sleep(5)
     # scrape the information
-    information = scrape_student_portal(driver, count_max=count_max, save_to_file=save_to_file)
+    information = scrape_student_portal(driver, num_of_days, save_to_file)
 
     # print(information)
 

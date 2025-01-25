@@ -7,7 +7,7 @@ warnings.filterwarnings("ignore")
 
 # Initialize the chat model
 llm = ChatOpenAI(
-    model_name = "gpt-3.5-turbo",  # Replace with "gpt-4" if needed
+    model_name = "gpt-3.5-turbo",
     openai_api_key = Config.OPENAI_API_KEY
 )
 
@@ -16,18 +16,7 @@ Classify the following announcement into one of these categories. Return only th
 On-Campus Job, Research program, Grad School Announcement, On-Campus Announcements, Research Participation,
 Technical Issues, or Miscellaneous:
 """
-
-def categorize_using_llm(announcements):
-    
-    for announcement in announcements:
-
-        category = classify(announcement)
-
-        announcement["announcement_type"] = category
-
-    return announcements
-
-def classify(announcement):
+def classify(announcement : object) -> str :
     # Format the announcement as text
     announcement_text = f"""
         Title: {announcement['title']}
@@ -48,6 +37,24 @@ def classify(announcement):
     response = llm(messages)
 
     return response.content
+
+def categorize_using_llm(announcements: list) -> list:
+    
+    for announcement in announcements:
+        # returns a llm response
+        category = classify(announcement)
+
+        # Add another key to the announcement to the object
+        announcement["announcement_type"] = category
+
+    return announcements
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
