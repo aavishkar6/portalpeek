@@ -1,6 +1,9 @@
 from langchain_community.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
 from ..config import Config
+from ..db.db import get_identifiers, get_db
+
+from hashlib import sha256
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -39,8 +42,20 @@ def classify(announcement : object) -> str :
     return response.content
 
 def categorize_using_llm(announcements: list) -> list:
-    
+    # print(f"announcements is {announcements}")
+
+    identifiers = get_identifiers(get_db().announcements)
     for announcement in announcements:
+        # Check if the announcement is already in the db.
+        # 1. Get all the identifiers from the db.
+        # 2. If the identifier of this announcements is in the db, skip, else classify
+
+        identifier = sha256(f"{announcement['date']}{announcement['title']}".encode()).hexdigest()
+
+        if identifier in identifiers:
+            print(f"Announcement already in the db. Announcement has title {announcement['title']}")
+            continue
+
         # returns a llm response
         category = classify(announcement)
 

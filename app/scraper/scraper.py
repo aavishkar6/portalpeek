@@ -41,15 +41,18 @@ def scrape_portal(production: bool = False, save_to_file: bool = True, num_of_da
 
     print("Scraping the website now")
 
-    wait = WebDriverWait(driver, 30)
+    wait = WebDriverWait(driver, 50)
     wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
 
     element = wait.until(EC.presence_of_element_located((By.ID, "announceContainer")))
 
-    load_more_button = element.find_element(By.CLASS_NAME, "load-more-btn")
+    try :
+      load_more_button = element.find_element(By.CLASS_NAME, "load-more-btn")
 
-    # Click on load more button 
-    load_more_button.click()
+      # Click on load more button 
+      load_more_button.click()
+    except Exception as e:
+      print("Unable to find load more button. Moving on with scraping.")
 
     time.sleep(5)
     # scrape the information
@@ -66,5 +69,5 @@ def scrape_portal(production: bool = False, save_to_file: bool = True, num_of_da
   except Exception as e:
 
     driver.quit()
-    print("Exception occured: {e}")
+    print(f"Exception occured: {e}")
     return ValueError

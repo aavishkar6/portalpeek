@@ -10,4 +10,4 @@ class Config:
   MONGO_URI = os.getenv("MONGODB_PASSWD")
   MONGO_PASSWORD = os.getenv("MONGO_URI")
   OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-  
+  SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")

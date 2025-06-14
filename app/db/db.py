@@ -46,6 +46,10 @@ def insert_one(collection_db , data: dict) -> None:
         print(f"Error occured : {e}")
         return None
 
+def get_all(collection):
+    """Returns all the db documents from the collection."""
+
+    return collection.find({})
 
 def find_one(collection, query: str) -> Optional[dict]:
     """Find a document based on a query."""
@@ -64,6 +68,17 @@ def delete_one(collection, query: str) :
     else:
         return ValueError
 
+def get_identifiers(collection):
+    """Returns identifiers for all the documents stored in the db."""
+    documents = get_all(collection)
+
+    print(documents[0])
+
+    identifiers = [each['identifier'] for each in documents]
+
+    print(identifiers)
+
+    return identifiers
 
 
 
