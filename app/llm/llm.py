@@ -1,7 +1,10 @@
 from langchain_community.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
 from ..config import Config
-from ..db.db import get_identifiers, get_db
+from ..db.db import get_identifiers, get_db, find_documents
+
+
+from datetime import date
 
 from hashlib import sha256
 
@@ -65,25 +68,47 @@ def categorize_using_llm(announcements: list) -> list:
     return announcements
 
 
+def get_summary_announcements(announcements):
+    prompt = """ You are given a list of announcements. You need to summarize them and 
+    highlight important points so that a user would be able to read the summary 
+    and get a sense of all the announcements. You can be creative in summarizing the text. 
+    Make sure the summary covers all of the announcements.
+    """
 
+    # Construct the messages for the chat model
+    messages = [
+        SystemMessage(content="You are a helpful assistant for classifying announcements."),
+        HumanMessage(content=prompt + announcements)
+    ]
 
+    # Get the response from the chat model
+    response = llm(messages)
 
-
+    return response.content
 
 
 
 if __name__ == "__main__":
-    duplicate = {
-        "title": "Study Away Course Alternate Proposals",
-        "category": "News & Information",
-        "description": "If you submitted a proposal that is pending a final decision, please be sure to have a backup enrollment plan in place in case the course is not approved as proposed or a decision is not made before the end of add/drop. Although every effort is made to review courses timely, the review process can take several weeks. You will be notified by email when a decision is made. Proposals should be submitted at least three weeks before the start of registration to allow time for schedule adjustments and/or further proposals. Course alternates are reviewed and updated regularly. Please check frequently as you plan your study away.",
-        "topic": "Registrar",
-        "date": "2025-01-24",
-        "posted_by": "Monique Hassan"
-    }
+    
+    # Get date.
+    date_today = date.today().strftime('%Y-%m-%d')
+    print("Today's date is ", date_today)
 
-    # Pass the announcement to the function
-    response = classify(duplicate)
+    # Get all the documents where data is equal to date.
+    announcements = find_documents(
+        collection = get_db().announcements,
+        query = {
+            "date":"2025-06-13"
+        }
+    )
 
-    # Print the classification response
-    print(response)
+    print(announcements)
+
+    announcements_list = "\n".join(str(a) for a in list(announcements))
+    print(announcements_list)
+
+    # Ask the LLM to get the summary of the announcements.
+    summary = get_summary_announcements(announcements_list)
+
+
+    print(summary)

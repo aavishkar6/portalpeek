@@ -51,7 +51,7 @@ def get_all(collection):
 
     return collection.find({})
 
-def find_one(collection, query: str) -> Optional[dict]:
+def find_one(collection, query: dict) -> Optional[dict]:
     """Find a document based on a query."""
     document = collection.find_one(query)
     if document:
@@ -60,7 +60,16 @@ def find_one(collection, query: str) -> Optional[dict]:
         print("No document matches the query.")
         return ValueError
     
-def delete_one(collection, query: str) :
+def find_documents(collection, query: dict) -> Optional[dict]:
+    """Return documents that match a given query"""
+    documents = list(collection.find(query))
+    if documents:
+        return documents
+    else:
+        print("No document match the given query")
+        return ValueError
+
+def delete_one(collection, query: dict) :
     """Delete a document based on a query"""
     document = collection.deleteOne(query)
     if document.acknowledged:
