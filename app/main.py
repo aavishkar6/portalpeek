@@ -5,6 +5,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 from datetime import timedelta, datetime, date
 import time
+import logging
 
 # Import required modules
 from .scraper.scraper import scrape_portal
@@ -15,7 +16,7 @@ from .config import Config
 
 def scrape_job():
   # Scrape the portal.
-  announcements = scrape_portal(production = True, save_to_file = True, num_of_days = 50)
+  announcements = scrape_portal(production = True, save_to_file = True, num_of_days = 2)
 
   # categorize data using llm.
   categorized_data = categorize_using_llm(announcements)
@@ -96,6 +97,16 @@ def send_email():
 
 
 if __name__ == "__main__":
+    
+    # Initialize logging.
+    logging.basicConfig(
+      level=logging.INFO,
+      format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+      handlers=[
+        logging.FileHandler("logs/app.log"),
+        logging.StreamHandler()
+      ]
+    )
 
     # Initialize scheduler.
     scheduler = BackgroundScheduler()
@@ -124,42 +135,42 @@ if __name__ == "__main__":
     scheduler = BackgroundScheduler()
 
     # 2. Scraping job every 5 minutes
-    scheduler.add_job(
-        scrape_job,
-        trigger=IntervalTrigger(minutes=4, start_date=start_time),
-        id="portal_scraper"
-    )
+    # scheduler.add_job(
+    #     scrape_job,
+    #     trigger=IntervalTrigger(minutes=4, start_date=start_time),
+    #     id="portal_scraper"
+    # )
 
-    # 3. Email reminder 1 minute BEFORE the first scrape
-    scheduler.add_job(
-        send_email_reminder,
-        trigger=DateTrigger(run_date=start_time + scrape_interval - reminder_offset),
-        id="scrape_reminder"
-    )
+    # # 3. Email reminder 1 minute BEFORE the first scrape
+    # scheduler.add_job(
+    #     send_email_reminder,
+    #     trigger=DateTrigger(run_date=start_time + scrape_interval - reminder_offset),
+    #     id="scrape_reminder"
+    # )
 
-    # 4. Send email update IMMEDIATELY after first scrape (i.e., 5 mins from now)
-    scheduler.add_job(
-        send_email,
-        trigger=DateTrigger(run_date=start_time + scrape_interval),
-        id="send_email"
-    )
+    # # 4. Send email update IMMEDIATELY after first scrape (i.e., 5 mins from now)
+    # scheduler.add_job(
+    #     send_email,
+    #     trigger=DateTrigger(run_date=start_time + scrape_interval),
+    #     id="send_email"
+    # )
 
-    # 5. Start scheduler
-    scheduler.start()
+    # # 5. Start scheduler
+    # scheduler.start()
 
-    # Log all jobs for confirmation
-    for job in scheduler.get_jobs():
-      print(f"{job.id} scheduled at {job.next_run_time}")
+    # # Log all jobs for confirmation
+    # for job in scheduler.get_jobs():
+    #   print(f"{job.id} scheduled at {job.next_run_time}")
 
 
-    print("Scheduler started...")
-    try:
-        while True:
-            # simulate some work being done.
-            time.sleep(60)
-    except (KeyboardInterrupt, SystemExit):
-        scheduler.shutdown()
+    # print("Scheduler started...")
+    # try:
+    #     while True:
+    #         # simulate some work being done.
+    #         time.sleep(60)
+    # except (KeyboardInterrupt, SystemExit):
+    #     scheduler.shutdown()
 
     scrape_job()
 
-    send_email()
+    # send_email()

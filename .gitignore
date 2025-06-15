@@ -61,3 +61,5 @@ npm-debug.log*
 
 # Azure deployment (if using)
 *.publishsettings
+
+announcements_json/

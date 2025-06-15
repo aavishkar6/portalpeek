@@ -103,8 +103,9 @@ def scrape_student_portal(driver : webdriver.Chrome, num_of_days: int, save_to_f
 
         # Define unique filename based on current time of scraping.
         file_name = f"announcements_{str(datetime.now())}.json"
+        file_path = f"./announcements_json/{file_name}"
 
-        with open(file_name, 'w') as f:
+        with open(file_path, 'w') as f:
             f.write(json_data)
 
     return announcements
